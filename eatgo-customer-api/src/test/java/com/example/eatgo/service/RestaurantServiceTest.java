@@ -4,6 +4,7 @@ import com.example.eatgo.domain.*;
 import com.example.eatgo.exception.RestaurantNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -17,12 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
 class RestaurantServiceTest {
 
+    @InjectMocks
     RestaurantService restaurantService;
 
     @Mock
@@ -38,47 +39,73 @@ class RestaurantServiceTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        //given
-        List<Restaurant> expectedRestaurants = Arrays.asList(
-                Restaurant.builder()
-                        .id(1L)
-                        .name("성전 떡볶이")
-                        .address("서울 강남구 강남대로94길 21")
-                        .build(),
+        mockRestaurants();
+        mockMenuItem();
+        mockReview();
+    }
+
+    private void mockRestaurants() {
+        Restaurant mockRestaurant = Restaurant.builder()
+                .id(1L)
+                .name("성전 떡볶이")
+                .address("서울 강남구 강남대로94길 21")
+                .categoryId(1L)
+                .build();
+
+        List<Restaurant> mockRestaurants = Arrays.asList(
+                mockRestaurant,
                 Restaurant.builder()
                         .id(2L)
                         .name("밀면넘어져요")
                         .address("부산 해운대구 좌동순환로 27")
+                        .categoryId(2L)
                         .build()
         );
 
-        doReturn(expectedRestaurants).when(restaurantService).getRestaurants("Seoul");
+        doReturn(mockRestaurants)
+                .when(restaurantRepository)
+                .findAllByAddressContainingAndCategoryId("서울", 1L);
 
+        doReturn(Optional.of(mockRestaurant))
+                .when(restaurantRepository)
+                .findById(1L);
+    }
 
-        List<MenuItem> menuItems = new ArrayList<>();
-        menuItems.add(new MenuItem("KimChi"));
-        expectedRestaurants.get(0).setMenuItems(menuItems);
+    private void mockMenuItem() {
+        List<MenuItem> mockMenuItem = new ArrayList<>();
+        mockMenuItem.add(MenuItem.builder()
+                .name("KimChi")
+                .build());
 
-        List<Review> reviews = new ArrayList<>();
-        reviews.add(Review.builder().name("ravi").score(5).description("good taste!").build());
-        expectedRestaurants.get(0).setReviews(reviews);
+        doReturn(mockMenuItem)
+                .when(menuItemRepository)
+                .findAllByRestaurantId(1L);
+    }
 
-        given(restaurantRepository.findAll()).willReturn(expectedRestaurants);
-        given(restaurantRepository.findById(1L)).willReturn(Optional.of(expectedRestaurants.get(0)));
-        given(reviewRepository.findAllByRestaurantId(1L)).willReturn(reviews);
+    private void mockReview() {
+        List<Review> mockReviews = new ArrayList<>();
+        mockReviews.add(
+                Review.builder()
+                        .name("ravi")
+                        .score(5)
+                        .description("good taste!")
+                        .build());
 
-        restaurantService = new RestaurantService(restaurantRepository, menuItemRepository, reviewRepository);
+        doReturn(mockReviews)
+                .when(reviewRepository)
+                .findAllByRestaurantId(1L);
     }
 
     @Test
     void getRestaurants() throws Exception {
         //when
         String region = "서울";
-        List<Restaurant> restaurants = restaurantService.getRestaurants(region);
+        List<Restaurant> restaurants = restaurantService.getRestaurants(region, 1L);
         Restaurant restaurant = restaurants.get(0);
 
         //then
         assertThat(restaurant.getId()).isEqualTo(1);
+        assertThat(restaurant.getCategoryId()).isEqualTo(1L);
     }
 
     @Test

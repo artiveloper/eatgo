@@ -42,6 +42,7 @@ class RestaurantControllerTest {
                 .id(1L)
                 .name("Bob zip")
                 .address("Seoul")
+                .categoryId(1L)
                 .build();
 
         List<Restaurant> restaurants = Arrays.asList(restaurant);
@@ -67,6 +68,7 @@ class RestaurantControllerTest {
                 .id(1L)
                 .name("Bob zip")
                 .address("Seoul")
+                .categoryId(1L)
                 .build();
 
         given(restaurantService.getRestaurant(1L))
@@ -105,7 +107,7 @@ class RestaurantControllerTest {
                     .build();
         });
 
-        String requestBody = "{\"name\": \"BeRyong\", \"address\": \"Seoul\"}";
+        String requestBody = "{\"categoryId\":1,\"name\":\"Beryong\"," + "\"address\":\"Busan\"}";
 
         //when
         mvc.perform(post("/restaurants")
@@ -121,7 +123,7 @@ class RestaurantControllerTest {
 
     @Test
     void createWithInvalidData() throws Exception {
-        String requestBody = "{\"name\": \"\", \"address\": \"\"}";
+        String requestBody = "{\"categoryId: 1\", \"name\": \"\", \"address\": \"\"}";
 
         //when
         mvc.perform(post("/restaurants")
@@ -129,10 +131,9 @@ class RestaurantControllerTest {
                 .content(requestBody))
                 .andExpect(status().isBadRequest());
     }
-
     @Test
     void updateWithValidData() throws Exception {
-        String requestBody = "{\"name\": \"Babzip\", \"address\": \"Seoul\"}";
+        String requestBody = "{\"categoryId\":1,\"name\":\"Babzip\"," + "\"address\":\"Seoul\"}";
         mvc.perform(patch("/restaurants/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -143,7 +144,7 @@ class RestaurantControllerTest {
 
     @Test
     void updateWithInvalidData() throws Exception {
-        String requestBody = "{\"name\": \"\", \"address\": \"\"}";
+        String requestBody = "{\"categoryId: 1\", \"name\": \"\", \"address\": \"\"}";
         mvc.perform(patch("/restaurants/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))

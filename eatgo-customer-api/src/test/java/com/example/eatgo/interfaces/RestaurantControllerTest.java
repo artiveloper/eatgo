@@ -5,6 +5,7 @@ import com.example.eatgo.domain.Restaurant;
 import com.example.eatgo.domain.Review;
 import com.example.eatgo.exception.RestaurantNotFoundException;
 import com.example.eatgo.service.RestaurantService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -23,6 +28,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,11 +36,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(RestaurantController.class)
 class RestaurantControllerTest {
 
-    @Autowired
     MockMvc mvc;
 
     @MockBean
     RestaurantService restaurantService;
+
+    @Autowired
+    private WebApplicationContext ctx;
+
+    @BeforeEach
+    void setUp() {
+        this.mvc = MockMvcBuilders.webAppContextSetup(ctx)
+                .addFilter(new CharacterEncodingFilter("UTF-8", true))
+                .alwaysDo(print())
+                .build();
+    }
 
     @Test
     void list() throws Exception {
@@ -44,19 +60,21 @@ class RestaurantControllerTest {
                         .id(1L)
                         .name("성전 떡볶이")
                         .address("서울 강남구 강남대로94길 21")
+                        .categoryId(1L)
                         .build(),
                 Restaurant.builder()
                         .id(2L)
                         .name("밀면넘어져요")
                         .address("부산 해운대구 좌동순환로 27")
+                        .categoryId(2L)
                         .build()
         );
 
-        doReturn(expectedRestaurants).when(restaurantService).getRestaurants("서울");
+        doReturn(expectedRestaurants).when(restaurantService).getRestaurants("서울", 1L);
 
         //when
         mvc.perform(
-                get("/restaurants?region=서울")
+                get("/restaurants?region=서울&categoryId=1")
                         .characterEncoding(StandardCharsets.UTF_8.name()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(
