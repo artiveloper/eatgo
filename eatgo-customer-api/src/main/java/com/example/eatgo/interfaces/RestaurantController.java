@@ -2,6 +2,7 @@ package com.example.eatgo.interfaces;
 
 import com.example.eatgo.domain.Restaurant;
 import com.example.eatgo.service.RestaurantService;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +19,13 @@ public class RestaurantController {
 
     private final RestaurantService restaurantService;
 
-    @GetMapping("/restaurants")
-    public List<Restaurant> list() {
-        List<Restaurant> restaurants = restaurantService.getRestaurants();
+    @GetMapping(value = "/restaurants", produces = "application/json;charset=UTF-8")
+    public List<Restaurant> list(@RequestParam("region") String region) {
+        List<Restaurant> restaurants = restaurantService.getRestaurants(region);
         return restaurants;
     }
 
-    @GetMapping("/restaurants/{id}")
+    @GetMapping(value = "/restaurants/{id}", produces = "application/json;charset=UTF-8")
     public Restaurant detail(@PathVariable Long id) {
         Restaurant restaurant = restaurantService.getRestaurant(id);
         return restaurant;

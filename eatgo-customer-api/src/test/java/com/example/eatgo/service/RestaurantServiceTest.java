@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
 class RestaurantServiceTest {
@@ -37,30 +38,33 @@ class RestaurantServiceTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        Restaurant restaurant1 = Restaurant.builder()
-                .id(1L)
-                .name("Bob zip")
-                .address("Seoul")
-                .build();
+        //given
+        List<Restaurant> expectedRestaurants = Arrays.asList(
+                Restaurant.builder()
+                        .id(1L)
+                        .name("성전 떡볶이")
+                        .address("서울 강남구 강남대로94길 21")
+                        .build(),
+                Restaurant.builder()
+                        .id(2L)
+                        .name("밀면넘어져요")
+                        .address("부산 해운대구 좌동순환로 27")
+                        .build()
+        );
 
-        Restaurant restaurant2 = Restaurant.builder()
-                .id(2L)
-                .name("The Babzip")
-                .address("Seoul")
-                .build();
+        doReturn(expectedRestaurants).when(restaurantService).getRestaurants("Seoul");
 
-        List<Restaurant> restaurants = Arrays.asList(restaurant1, restaurant2);
 
         List<MenuItem> menuItems = new ArrayList<>();
         menuItems.add(new MenuItem("KimChi"));
-        restaurants.get(0).setMenuItems(menuItems);
+        expectedRestaurants.get(0).setMenuItems(menuItems);
 
         List<Review> reviews = new ArrayList<>();
         reviews.add(Review.builder().name("ravi").score(5).description("good taste!").build());
-        restaurants.get(0).setReviews(reviews);
+        expectedRestaurants.get(0).setReviews(reviews);
 
-        given(restaurantRepository.findAll()).willReturn(restaurants);
-        given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurants.get(0)));
+        given(restaurantRepository.findAll()).willReturn(expectedRestaurants);
+        given(restaurantRepository.findById(1L)).willReturn(Optional.of(expectedRestaurants.get(0)));
         given(reviewRepository.findAllByRestaurantId(1L)).willReturn(reviews);
 
         restaurantService = new RestaurantService(restaurantRepository, menuItemRepository, reviewRepository);
@@ -68,9 +72,12 @@ class RestaurantServiceTest {
 
     @Test
     void getRestaurants() throws Exception {
-        List<Restaurant> restaurants = restaurantService.getRestaurants();
-
+        //when
+        String region = "서울";
+        List<Restaurant> restaurants = restaurantService.getRestaurants(region);
         Restaurant restaurant = restaurants.get(0);
+
+        //then
         assertThat(restaurant.getId()).isEqualTo(1);
     }
 
