@@ -6,7 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
@@ -21,11 +22,12 @@ class UserServiceTest {
     @InjectMocks
     UserService userService;
 
-    @MockBean
+    @Mock
     UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.initMocks(this);
         userService = new UserService(userRepository);
     }
 
@@ -45,7 +47,9 @@ class UserServiceTest {
         List<User> users = userService.getUsers();
 
         User user = users.get(0);
+
         assertEquals(user.getName(), "tester");
+        assertEquals(user.getEmail(), "tester@example.com");
     }
 
 }

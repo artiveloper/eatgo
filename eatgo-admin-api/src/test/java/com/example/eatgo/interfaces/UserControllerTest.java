@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -16,7 +17,9 @@ import java.util.List;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,4 +59,28 @@ class UserControllerTest {
                 ));
     }
 
+    @Test
+    void create() throws Exception {
+        //given
+        String email = "admin@example.com";
+        String name = "admin";
+
+        User expectedUser = User.builder()
+                .email(email)
+                .name(name)
+                .build();
+
+        doReturn(expectedUser).when(userService).addUser(email, name);
+
+        //when
+        String requestBody = "{\"email\": \"admin@example.com\", \"name\": \"admin\"}";
+
+        mvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isCreated());
+
+        //then
+        verify(userService).addUser(email, name);
+    }
 }

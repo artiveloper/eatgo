@@ -19,4 +19,9 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User addUser(String email, String name) {
+
+        return null;
+    }
+
 }
