@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +21,17 @@ public class UserService {
     }
 
     public User addUser(String email, String name) {
+        User user = User.builder()
+                .email(email)
+                .name(name)
+                .build();
+        return userRepository.save(user);
+    }
 
-        return null;
+    public User updateUser(Long id, String email, String name, Long level) {
+        User user = userRepository.findById(id).orElse(null);
+        user.update(email, name, level);
+        return user;
     }
 
 }

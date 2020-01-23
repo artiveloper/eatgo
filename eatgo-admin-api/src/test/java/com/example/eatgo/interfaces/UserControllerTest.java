@@ -16,10 +16,9 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -83,4 +82,25 @@ class UserControllerTest {
         //then
         verify(userService).addUser(email, name);
     }
+
+    @Test
+    void update() throws Exception {
+        //given
+        Long id = 1L;
+        String email = "admin@example.com";
+        String name = "admin";
+        Long level = 100L;
+
+        //when
+        String requestBody = "{\"id\": 1, \"email\": \"admin@example.com\", \"name\": \"admin\", \"level\": 100}";
+
+        mvc.perform(patch("/users/" + id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk());
+
+        //then
+        verify(userService).updateUser(eq(id), eq(email), eq(name), eq(level));
+    }
+
 }

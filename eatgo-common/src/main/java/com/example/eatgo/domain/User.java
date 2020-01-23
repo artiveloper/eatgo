@@ -35,4 +35,10 @@ public class User {
         return this.level >= 100;
     }
 
+    public void update(String email, String name, Long level) {
+        this.email = email;
+        this.name = name;
+        this.level = level;
+    }
+
 }

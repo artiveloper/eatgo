@@ -4,11 +4,10 @@ import com.example.eatgo.domain.User;
 import com.example.eatgo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -31,6 +30,17 @@ public class UserController {
         String url = "/users/" + user.getId();
 
         return ResponseEntity.created(new URI(url)).body("{}");
+    }
+
+    @PatchMapping("/users/{userId}")
+    public String update(@PathVariable Long userId, @RequestBody User resource) {
+
+        String email = resource.getEmail();
+        String name = resource.getName();
+        Long level = resource.getLevel();
+
+        userService.updateUser(userId, email, name, level);
+        return "";
     }
 
 }
