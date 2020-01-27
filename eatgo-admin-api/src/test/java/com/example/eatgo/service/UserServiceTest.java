@@ -14,8 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -90,6 +89,7 @@ class UserServiceTest {
 
         User expectedUser = User.builder()
                 .email(email)
+                .level(level)
                 .name("tester")
                 .build();
 
@@ -103,4 +103,29 @@ class UserServiceTest {
         assertTrue(user.isAdmin());
     }
 
+    @Test
+    void deactivateUser() throws Exception {
+        //given
+        Long id = 1L;
+        String email = "admin@example.com";
+        String name = "administrator";
+        Long level = 100L;
+
+        User expectedUser = User.builder()
+                .id(id)
+                .email(email)
+                .name(name)
+                .level(level)
+                .build();
+
+        doReturn(Optional.of(expectedUser)).when(userRepository).findById(id);
+
+        //when
+        User user = userService.deactivateUser(id);
+
+        //then
+        verify(userRepository).findById(eq(id));
+        assertFalse(user.isAdmin());
+        assertFalse(user.isActive());
+    }
 }

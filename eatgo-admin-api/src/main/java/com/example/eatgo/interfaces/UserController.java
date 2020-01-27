@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -40,6 +38,12 @@ public class UserController {
         Long level = resource.getLevel();
 
         userService.updateUser(userId, email, name, level);
+        return "";
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public String delete(@PathVariable Long userId) {
+
         return "";
     }
 

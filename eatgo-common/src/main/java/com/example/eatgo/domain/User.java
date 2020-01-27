@@ -28,11 +28,18 @@ public class User {
     @NotEmpty
     private String name;
 
-    @NotNull
     private Long level;
 
     public boolean isAdmin() {
         return this.level >= 100;
+    }
+
+    public boolean isActive() {
+        return this.level > 0;
+    }
+
+    public void deactivate() {
+        this.level = 0L;
     }
 
     public void update(String email, String name, Long level) {
