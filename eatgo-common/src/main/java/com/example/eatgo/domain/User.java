@@ -30,6 +30,8 @@ public class User {
 
     private Long level;
 
+    private String password;
+
     public boolean isAdmin() {
         return this.level >= 100;
     }
