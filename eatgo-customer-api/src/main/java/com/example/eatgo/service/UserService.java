@@ -39,4 +39,9 @@ public class UserService {
         return user;
     }
 
+    public User authenticate(String email, String password) {
+
+        return null;
+    }
+
 }
