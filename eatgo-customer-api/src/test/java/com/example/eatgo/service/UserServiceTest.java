@@ -81,7 +81,7 @@ class UserServiceTest {
                 .build();
 
         doReturn(Optional.of(mockUser)).when(userRepository).findByEmail(email);
-        //doReturn(true).when(passwordEncoder).matches(any(), any());
+        doReturn(true).when(passwordEncoder).matches(any(), any());
 
 
         //when
