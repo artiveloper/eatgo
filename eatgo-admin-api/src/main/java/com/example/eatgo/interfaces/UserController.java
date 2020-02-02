@@ -43,7 +43,7 @@ public class UserController {
 
     @DeleteMapping("/users/{userId}")
     public String delete(@PathVariable Long userId) {
-
+        userService.deactivateUser(userId);
         return "";
     }
 

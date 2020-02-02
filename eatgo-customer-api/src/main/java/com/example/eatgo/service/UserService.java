@@ -3,6 +3,8 @@ package com.example.eatgo.service;
 import com.example.eatgo.domain.User;
 import com.example.eatgo.domain.UserRepository;
 import com.example.eatgo.exception.EmailExistedException;
+import com.example.eatgo.exception.EmailNotExistedException;
+import com.example.eatgo.exception.PasswordWrongException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +19,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public User registerUser(String email, String name, String password) {
@@ -24,9 +27,8 @@ public class UserService {
         if (existed.isPresent()) {
             throw new EmailExistedException(email);
         }
-
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodePassword = passwordEncoder.encode(password);
+
         User user = User.builder()
                 .email(email)
                 .name(name)
@@ -40,8 +42,14 @@ public class UserService {
     }
 
     public User authenticate(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EmailNotExistedException(email));
 
-        return null;
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new PasswordWrongException();
+        }
+
+        return user;
     }
 
 }
