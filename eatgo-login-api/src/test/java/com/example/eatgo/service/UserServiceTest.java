@@ -2,7 +2,6 @@ package com.example.eatgo.service;
 
 import com.example.eatgo.domain.User;
 import com.example.eatgo.domain.UserRepository;
-import com.example.eatgo.exception.EmailExistedException;
 import com.example.eatgo.exception.EmailNotExistedException;
 import com.example.eatgo.exception.PasswordWrongException;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,39 +31,6 @@ class UserServiceTest {
     @BeforeEach
     void beforeEach() {
         MockitoAnnotations.initMocks(this);
-    }
-
-    @Test
-    void registerUser() {
-        String email = "tester@gmail.com";
-        String name = "tester";
-        String password = "password";
-
-        userService.registerUser(email, name, password);
-
-        verify(userRepository).save(any());
-    }
-
-    @Test
-    void registerUserWithExistedEmail() {
-        String email = "tester@gmail.com";
-        String name = "tester";
-        String password = "password";
-
-        User mockUser = User.builder()
-                .email(email)
-                .name(name)
-                .password(password)
-                .build();
-
-        doReturn(Optional.of(mockUser)).when(userRepository).findByEmail(email);
-
-        Exception exception = assertThrows(
-                EmailExistedException.class,
-                () -> userService.registerUser(email, name, password));
-
-        verify(userRepository, never()).save(any());
-        assertEquals("Email is already registered : " + email, exception.getMessage());
     }
 
     @Test
