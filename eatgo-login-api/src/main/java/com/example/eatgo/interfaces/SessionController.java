@@ -28,7 +28,14 @@ public class SessionController {
         String password = resource.getPassword();
 
         User user = userService.authenticate(email, password);
-        String accessToken = jwtUtil.createToken(user.getId(), user.getName());
+
+        System.out.println("====" + user.getRestaurantId());
+
+        String accessToken = jwtUtil.createToken(
+                user.getId(),
+                user.getName(),
+                user.isRestaurantOwner() ? user.getRestaurantId() : null
+        );
 
         SessionResponseDto sessionResponseDto = SessionResponseDto.builder()
                 .accessToken(accessToken)

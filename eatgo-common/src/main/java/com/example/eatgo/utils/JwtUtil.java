@@ -13,13 +13,14 @@ public class JwtUtil {
         this.secret = secret;
     }
 
-    public String createToken(Long userId, String name) {
+    public String createToken(Long userId, String name, Long restaurantId) {
+        System.out.println("======== in createToken");
         String token = Jwts.builder()
                 .claim("userId", userId)
                 .claim("name", name)
+                .claim("restaurantId", restaurantId != null ? restaurantId : "")
                 .signWith(Keys.hmacShaKeyFor(this.secret.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
-
         return token;
     }
 

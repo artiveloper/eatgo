@@ -15,6 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,6 +38,7 @@ class SessionControllerTest {
     void create() throws Exception {
         //given
         Long id = 1L;
+        Long level = 1L;
         String email = "tester@gmail.com";
         String name = "tester";
         String password = "password";
@@ -46,10 +48,11 @@ class SessionControllerTest {
                 .email(email)
                 .name(name)
                 .password(password)
+                .level(level)
                 .build();
 
         doReturn(mockUser).when(userService).authenticate(email, password);
-        doReturn("header.payload.signature").when(jwtUtil).createToken(id, name);
+        doReturn("header.payload.signature").when(jwtUtil).createToken(id, name, null);
 
         //when, then
         String requestBody = "{\"email\": \"tester@gmail.com\", \"password\": \"password\"}";
@@ -61,7 +64,7 @@ class SessionControllerTest {
                 .andExpect(header().string("location", "/session"))
                 .andExpect(content().string("{\"accessToken\":\"header.payload.signature\"}"));
 
-        verify(userService).authenticate(eq("tester@gmail.com"), eq("password"));
+        verify(userService).authenticate(eq(email), eq(password));
     }
 
     @Test
@@ -94,6 +97,43 @@ class SessionControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(userService).authenticate(eq("x@gmail.com"), eq("x"));
+    }
+
+    @Test
+    void createRestaurantOwner() throws Exception {
+        //given
+        Long id = 1L;
+        Long level = 50L;
+        String email = "owner@gmail.com";
+        String name = "owner";
+        String password = "password";
+
+        Long restaurantId = 1L;
+
+        User mockUser = User.builder()
+                .id(id)
+                .email(email)
+                .name(name)
+                .password(password)
+                .restaurantId(restaurantId)
+                .level(level)
+                .build();
+
+        doReturn(mockUser).when(userService).authenticate(email, password);
+        doReturn("header.payload.signature").when(jwtUtil).createToken(id, name, restaurantId);
+
+        //when, then
+        String requestBody = "{\"email\": \"owner@gmail.com\", \"password\": \"password\"}";
+
+        mvc.perform(post("/session")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("location", "/session"))
+                .andExpect(content().string("{\"accessToken\":\"header.payload.signature\"}"));
+
+        assertTrue(mockUser.isRestaurantOwner());
+        verify(userService).authenticate(eq(email), eq(password));
     }
 
 }

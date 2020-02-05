@@ -22,6 +22,8 @@ public class User {
     @GeneratedValue
     private Long id;
 
+    private Long restaurantId;
+
     @NotEmpty
     private String email;
 
@@ -44,10 +46,19 @@ public class User {
         this.level = 0L;
     }
 
+    public void setRestaurantId(Long restaurantId) {
+        this.level = 50L;
+        this.restaurantId = restaurantId;
+    }
+
     public void update(String email, String name, Long level) {
         this.email = email;
         this.name = name;
         this.level = level;
+    }
+
+    public boolean isRestaurantOwner() {
+        return this.level == 50L;
     }
 
 }
